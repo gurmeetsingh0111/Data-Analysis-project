@@ -11,9 +11,9 @@ This dataset has daily level information on the number of affected cases, deaths
 The data is available from 22 Jan, 2020.
 
 Column Description
-data.csv
+"data.csv"
 
-Sno - Serial number
+<br>Sno - Serial number</br>
 <br>Date - Date and time of the observation in MM/DD/YYYY HH:MM:SS </br>
 <br>Province / State - Province or state of the observation (Could be empty when missing)</br>
 <br>Country - Country of observation</br>
@@ -21,7 +21,7 @@ Sno - Serial number
 <br>Confirmed - Number of confirmed cases</br>
 <br>Deaths - Number of deaths</br>
 </br>Recovered - Number of recovered cases</br>
-</br>The data may be update in future when new reports of the patients will come.</br>
+<br><B>The data may be update in future when new reports of the patients will come.</B></br>
 
 The data encourage the analysis of time series, which will allow us to look at the studied phenomenon not only in a point-like manner. 
 
