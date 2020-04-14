@@ -6,7 +6,9 @@ output: html_document
 ---
 # R Markdown File
 
-This is an R Markdown document.
+<br>This is an R Markdown document.</br>
+<br>Data Resource : <https://www.covid19india.org/></br>
+
 You can get the required data set(s) and infromation from <https://github.com/gurmeetsingh0111/Data-Analysis-project>.
 
 # Introduction
@@ -14,7 +16,7 @@ You can get the required data set(s) and infromation from <https://github.com/gu
 The aim of this kernel is understand COVID-19 India better, by implementing/viewing the data graphically
 
 ### The Story of COVID-19 in India
-The COVID-19 pandemic is the defining global health crisis of our time and the greatest global humanitarian challenge the world has faced since World War II. The virus has spread widely, and the number of cases is rising daily as governments work to slow its spread. India has moved quickly, implementing a proactive, nationwide, 21-day lockdown, with the goal of flattening the curve and using the time to plan and resource responses adequately.
+  The COVID-19 pandemic is the defining global health crisis of our time and the greatest global humanitarian challenge the world has faced since World War II. The virus has spread widely, and the number of cases is rising daily as governments work to slow its spread. India has moved quickly, implementing a proactive, nationwide, 21-day lockdown, with the goal of flattening the curve and using the time to plan and resource responses adequately.
 
 ## Load libraries
 
@@ -30,31 +32,38 @@ library(dplyr)
 ### Reading the dataset
 ```{r}
 Details <- read_csv("https://raw.githubusercontent.com/gurmeetsingh0111/Data-Analysis-project/master/IndividualDetails.csv")
-
+#load the data from the given link
 ```
 ### Cleaning the data by removing the `NA` values and some coloumns which are not that useful 
 ```{r}
-data = Details[,c(1,3,4,5,8,9,10,11)]
+data = Details[,c(1,3,4,5,8,9,10,11)]  #taking only necessary columns 
+ 
+d_subset = na.omit(data)              #Removing the NA values
+write.csv(d_subset, file="file.csv") #Writing a new file with the cleaned data
 
-d_subset = na.omit(data)
-write.csv(d_subset, file="file.csv")
-
-d_subset<-as.data.frame(d_subset)
+d_subset<-as.data.frame(d_subset)  #Converting it into a data frame
 ```
-<I><B>Note that after removing all the NA values the data remained is 12.35% of the original data.</I></B>
+<B><I>Note that after removing all the NA values the data remained is 12.35% of the original data.</I>
+Results of the analysis done may vary than the original results as mentioned above that after cleaning , 87.65% of the data was lost due to incomplete rows or columns in the original data</B>
 
 setting the date format
 ```{r}
-d_subset$diagnosed_date<-as.Date(d_subset$diagnosed_date,'%d/%m/%Y')
+d_subset$diagnosed_date<-as.Date(d_subset$diagnosed_date,'%d/%m/%Y') #Setting the date format
 ```
 ## Data Visualization
+
 ### Age Group Analysis
 ```{r}
-age<-read_csv("https://raw.githubusercontent.com/gurmeetsingh0111/Data-Analysis-project/master/AgeGroupDetails.csv")
-age<-as.data.frame(age)
+age<-read_csv("https://raw.githubusercontent.com/gurmeetsingh0111/Data-Analysis-project/master/AgeGroupDetails.csv") #This csv file contains the data of patients grouped by their age . This file is computed with the help of the above file "IndividualDetails.csv"
+#converting it into the data frame
+age<-as.data.frame(age) 
+#lbls is vector contains the name of the age groups
 lbls<-c("0-9","10-19","20-29","30-39","40-49","50-59","60-69","70-79",">=80")
+#pct is a which contains the percentage of patients in a particular age group   
 pct<-c(age$Percentage)
+#we concatinate the lbls and pct vectors seprated by "->" to make it easily readable
 lbls<-paste(lbls,pct,sep = "->")
+#making a pie chart for "Age group wise distribution" from the above details
 pie(age$TotalCases,labels=lbls,col=rainbow(length(age$AgeGroup)),radius=1,border=1,main="Age group wise distribution")
 ```
 
@@ -63,15 +72,21 @@ May be because young people meet and travel much more than older people so they 
 
 ### Percentage of gender
 ```{r}
+#fm is a table variable containing the frequency of genders in the data 
 fm<-table(d_subset$gender)
+#totalfemales in the data 
 totalfemale<-fm[1]
+#totoal males in the data
 totalmale<-fm[2]
 
 slices <- c(fm[1],fm[2])
+#pct has the percenatge of how many females and males are there
 pct <- round(slices/sum(slices)*100)
+#lbls works as lable while printing the pie chart
 lbls <- c("Female", "Male")
 lbls <- paste(lbls, pct) # add percents to labels
 lbls <- paste(lbls,"%",sep="") # ad % to labels
+#making a pie chart of "Gender % of affected people" from the above details
 pie(slices,labels = lbls, col=rainbow(length(lbls)),radius=1,border=1,
     main="Gender % of affected people")
 ```
@@ -81,17 +96,23 @@ Men were the most affected accounting to 74%
 
 ### Current status of patients
 ```{r}
+#status contians the frequency of the current status of the patient
 status<-table(d_subset$current_status)
+#plotting the current status os the petienta 
 barplot(status,col=c("red","orange","green"),xlab = "Current Status",ylim=c(0,1000),ylab = "No. of patients",main = "Status of patients")
 ```
 
 Most of them are still held in quarantine
 
 ```{r}
+#spect contains the percentage of current status of patients 
 spect<-round(status/sum(status)*100)
+#lbls wlll works as a lable for pie chart
 lbls<-c("Deceasead","Hospitalized","Recovered")
+#concatinating to make it easily readable
 lbls<-paste(lbls,spect,sep = "->")
 lbls<-paste(lbls,"%",sep = "")
+#plotting a pie chart for "Condition of people" from the above details 
 pie(status,labels=lbls,col=rainbow(3),radius=1,border=1,main="Condition of people")
 ```
 
@@ -99,13 +120,18 @@ Only 2% of the total affected people died
 
 ### Recovery of patients gender wise
 ```{r}
+#filtering the data frame using "dplyr" library to obtain specific results
 recovered1<-filter(d_subset,d_subset$gender=='M' & d_subset$current_status=="Recovered")
 recovered2<-filter(d_subset,d_subset$gender=='F' & d_subset$current_status=="Recovered")
+#rc1  has the no. of male patients recovered 
 rc1<-as.integer(count(recovered1))
+#rc2 has the no. of female patients recovered 
 rc2<-as.integer(count(recovered2))
 deceased1<-filter(d_subset,d_subset$gender=='M' & d_subset$current_status=="Deceased")
 deceased2<-filter(d_subset,d_subset$gender=='F' & d_subset$current_status=="Deceased")
+#dc1 has the no. of male patients deceased
 dc1<-as.integer(count(deceased1))
+#dc2 has the no. of female patients deseaced
 dc2<-as.integer(count(deceased2))
 
 c1<-c(rc1,rc2)
@@ -113,50 +139,67 @@ c1
 c2<-c(dc1,dc2)
 c2
 rd<-c("Males","Females")
+#plotting a bar plot for "People Recovered" from the above details from the above data
 barplot(c1, main="People Recovered",names.arg = rd,
         ylab="no of patients",ylim =c(0,50), col=c("darkblue","red"),
          )
+#plotting a bar plot for "People Deceased" from the above details from the above data
 barplot(c2, main="People Deceased",names.arg = rd,
         ylab="no of patients",ylim =c(0,50), col=c("darkblue","red"),
 )
 ```
 
-### Recovery,Deceased ration of Males v/s Females
+### Recovery,Deceased ratio of Males v/s Females
 ```{r}
+#pfr has the percentage of females recovered
 pfr<-round((rc2/totalfemale)*100)
+#pmr has the percenatge of males recovered
 pmr<-round((rc1/totalmale)*100)
+#pct percentage vector
 pct <- c(pmr,pfr)
 lbls <- c("Males Recovered", "Females Recovered")
+#concatinating to make easily readable
 lbls <- paste(lbls, pct,sep="->") # add percents to labels
 lbls <- paste(lbls,"%",sep="") # ad % to labels
+#plotting the pie chart for "Recovery percenatge of females vs males"
 pie(pct,labels = lbls, col=rainbow(length(lbls)),
     main="Recovery percenatge of females vs males")
 
+#pfd has the percentage of females deceased
 pfd<-round((dc2/totalfemale)*100)
+#pfd has the percentage of males deceased
 pmd<-round((dc1/totalmale)*100)
 pct <- c(pfd,pmd)
 lbls <- c("Females Deceased", "Males Deceased")
+#concatinating to make easily readable
 lbls <- paste(lbls, pct,sep="->") # add percents to labels
 lbls <- paste(lbls,"%",sep="") # ad % to labels
+#plotting the pie chart for "Deceased percenatge of females vs males" from the above data
 pie(pct,labels = lbls, col=rainbow(length(lbls)),
     main="Deceased percenatge of females vs males")
 ```
 
 ### Quarantine gender ratio
 ```{r}
+#filtering the data frame using "dplyr" library to obtain specific results
 q1<-filter(d_subset,d_subset$gender=='M' & d_subset$current_status=="Hospitalized")
 q2<-filter(d_subset,d_subset$gender=='F' & d_subset$current_status=="Hospitalized")
 qc1<-as.integer(count(q1))
+#qc1 has the no. of males currently hospitalized
 qc1
 qc2<-as.integer(count(q2))
+#qc2 has the no. of females currently hospitalized
 qc2
 q<-c(qc2,qc1)
+#percentage of females hospitalized
 pfq<-round((qc2/totalfemale)*100)
+#percentage of males hospitalized
 pmq<-round((qc1/totalmale)*100)
 pct <- c(pfq,pmq)
 lbls <- c("Females Hospitilized", "Males Hospitilized")
 lbls <- paste(lbls, pct,sep="->") # add percents to labels
 lbls <- paste(lbls,"%",sep="") # ad % to labels
+#plotting the pie chart for "Hospitilized percenatge of females vs males" from the above data
 pie(pct,labels = lbls, col=rainbow(length(lbls)),
     main="Hospitilized percenatge of females vs males")
 
@@ -166,19 +209,23 @@ Both 90% of Males and Females are still in quarantine
 
 ### No. Of Cases per day
 ```{r}
+#filtering the data frame using "dplyr" library to obtain specific results
 ad<- d_subset %>%
   group_by(diagnosed_date)%>%
   summarise(n_distinct(id))
 ad
+#changing to column names to make it easy to use
 colnames(ad)<-c("date","cases")
-
+#setting the date format
 ad$date<-as.Date(ad$date,'%d/%m/%Y')
 require(ggplot2)
-ggplot(data = ad,aes(date,cases))+geom_line()+labs(title = "Cases every day")
+#plotting the line plot for "cases per day" from the above data
+ggplot(data = ad,aes(date,cases))+geom_line()+labs(title = "Cases per day")
 ```
 
 ### Max cases on a single day
 ```{r}
+#calculating which day as the maximum no. of cases 
 m=max(ad[,2])
 r=0
 for(i in 1:nrow(ad))
@@ -190,11 +237,13 @@ print(ad[r+1,1])
 
 ### Statewise Insights
 ```{r}
+#filtering the data frame using "dplyr" library to obtain specific results
 State<- d_subset %>%
   group_by(detected_state)%>%
   summarise(n_distinct(id))
+#changing to column names to make it easy to use
 colnames(State)<-c("state","cases")
-
+#plotting the barplot for "No. of Patient State wise" from the above data 
 barplot(State$cases,col=rainbow(29),names.arg = State$state,las=2,ylab = "No. of patients",main = "No. of Patient State wise")
 ```
 
@@ -202,12 +251,16 @@ This tells us which state got the most no. Of cases currently
 
 ### Outsiders affected by the virus in Inida
 ```{r}
+#filtering the data frame using "dplyr" library to obtain specific results
 nation=d_subset%>%
   group_by(nationality)%>%
   summarise(n_distinct(id))
+#changing to column names to make it easy to use
 colnames(nation)<-c("nationality","cases")
+#removing the rows containg the data of india 
 row_to_keep = c(FALSE,FALSE, TRUE, TRUE, TRUE, TRUE, TRUE,TRUE, TRUE)
 nation = nation[row_to_keep,]
+#plotting the barplot for "No. of NRI Patient" in india from the above details
 barplot(nation$cases,col=rainbow(8),names.arg = nation$nationality,las=2,ylab = "No. of patients",main = "No. of NRI Patient")
 ```
 
@@ -215,19 +268,23 @@ We can say that these people carried virus from thier respective countries or fr
 
 ### Fatality Rate
 ```{r}
+#tdeaths has the total no. of deaths 
 tdeaths=0
+#fdeaths has the no. of females died 
 fdeaths=0
+#mdeath has the no. of males dies
 mdeaths=0
+#loop for calculating the total deaths
 for(i in 1:nrow(d_subset)){
   if(d_subset[i,7]=="Deceased")
     tdeaths=tdeaths+1
 }
-
+#loop for calculating the total female deaths
 for(i in 1:nrow(d_subset)){
   if(d_subset[i,7]=="Deceased"&&d_subset[i,4]=="F")
     fdeaths=fdeaths+1
-  
 }
+#loop for calculating the total male deaths
 for(i in 1:nrow(d_subset)){
   if(d_subset[i,7]=="Deceased"&&d_subset[i,4]=="M")
     mdeaths=mdeaths+1
@@ -235,18 +292,23 @@ for(i in 1:nrow(d_subset)){
 mdeaths
 fdeaths
 tdeaths
-#fatality rate
+#Calculating the Fatality rate
 fratefemale=fdeaths/totalfemale*100
+#Fatality rate of females
 fratefemale
 fratemale=mdeaths/totalmale*100
+#Fatality rate of males
 fratemale
+#Overall Fatality rate 
 frate=tdeaths/1047*100
 frate
 rate<-c(fratefemale,fratemale)
 lbls<-c("Female fatality rate","Male fatality rate")
 pct<-round(rate)
-lbls<-paste(lbls,pct,sep = "->")
-lbls<-paste(lbls,"%",sep = "")
+#Concatinating to make it easily readable
+lbls<-paste(lbls,pct,sep = "->") # add percents to labels
+lbls<-paste(lbls,"%",sep = "")  # add % to labels
+#plotting the pie chart for "Gender wise Fatality rate" from the above details
 pie(rate,labels=lbls,col=rainbow(2),radius=1,border=1,main="Gender wise Fatality rate")
 ```
 
